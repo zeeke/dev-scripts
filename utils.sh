@@ -1016,6 +1016,18 @@ function setup_bond() {
     done
 }
 
+function setup_igb_interface() {
+    local role=${1}
+    local count=${2}
+    local bridge=${IGB_BRIDGE}
+
+    for (( n=0; n<${count}; n++ ))
+    do
+        name=${CLUSTER_NAME}_${role}_${n}
+        sudo virt-xml ${name} --add-device --network bridge=${bridge},model=igb
+    done
+}
+
 function is_running() {
     local podname="$1"
     local ids

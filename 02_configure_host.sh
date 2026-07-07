@@ -425,6 +425,11 @@ if [ "${DISABLE_MULTICAST:-false}" == "true" ]; then
     done
 fi
 
+if [[ "${IGB_INTERFACE}" == "true" ]]; then
+    setup_igb_interface master $NUM_MASTERS
+    setup_igb_interface worker $NUM_WORKERS
+fi
+
 if [[ ! -z "${BOND_PRIMARY_INTERFACE:-}" ]]; then
 
     setup_bond master $NUM_MASTERS
