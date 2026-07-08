@@ -1,0 +1,35 @@
+apiVersion: machineconfiguration.openshift.io/v1
+kind: MachineConfig
+metadata:
+  labels:
+    machineconfiguration.openshift.io/role: worker
+  name: 99-worker-igb-disable-offload
+spec:
+  config:
+    ignition:
+      version: IGNITION_VERSION
+    storage:
+      files:
+      - contents:
+          source: 'data:text/plain;charset=utf-8;base64,SCRIPTCONTENT'
+        filesystem: root
+        mode: 0755
+        path: /usr/local/bin/igb-disable-offload.sh
+        overwrite: true
+    systemd:
+      units:
+      - name: igb-disable-offload.service
+        enabled: true
+        contents: |
+          [Unit]
+          Description=Disable TX offloading on emulated igb NICs
+          After=NetworkManager-wait-online.service
+          Before=kubelet.service
+
+          [Service]
+          Type=oneshot
+          ExecStart=/usr/local/bin/igb-disable-offload.sh
+          RemainAfterExit=yes
+
+          [Install]
+          WantedBy=multi-user.target

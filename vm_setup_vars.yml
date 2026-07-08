@@ -113,3 +113,6 @@ extra_networks: >-
   {{ nets }}
 
 networks: "{{ provisioning_network + external_network + extra_networks if not lookup('env', 'BOND_PRIMARY_INTERFACE') else provisioning_network + external_network + external_network + extra_networks }}"
+
+libvirt_nic_model: "{{ lookup('env', 'LIBVIRT_NIC_MODEL') | default('virtio', true) }}"
+

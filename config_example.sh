@@ -442,6 +442,15 @@ set -x
 ## VM Settings
 ##
 
+# LIBVIRT_NIC_MODEL -
+# NIC model for libvirt VMs. When set to "igb", a MachineConfig is
+# automatically injected to disable TX checksum offloading, which QEMU's
+# igb emulation does not implement (breaks Geneve-encapsulated TCP).
+# Default: virtio
+# Choices: virtio, igb, e1000, e1000e
+#
+#export LIBVIRT_NIC_MODEL=igb
+
 # BMC_DRIVER - BMC type.
 # Default: redfish
 # Choices: redfish, redfish-virtualmedia, ipmi

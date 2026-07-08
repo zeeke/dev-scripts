@@ -111,6 +111,21 @@ function custom_ntp(){
   fi
 }
 
+function fix_igb_offload(){
+  local assets_dir=$1
+  if [[ "${LIBVIRT_NIC_MODEL}" == "igb" ]] || [[ "${IGB_INTERFACE}" == "true" ]]; then
+    cp assets/templates/99_worker-igb-disable-offload.yaml.optional assets/generated/99_worker-igb-disable-offload.yaml
+    cp assets/templates/99_master-igb-disable-offload.yaml.optional assets/generated/99_master-igb-disable-offload.yaml
+    SCRIPTCONTENT=$(cat assets/files/usr/local/bin/igb-disable-offload.sh | base64 -w0)
+    sed -i -e "s|SCRIPTCONTENT|${SCRIPTCONTENT}|g" assets/generated/*-igb-disable-offload.yaml
+    IGNITION_VERSION=$(yq -r .spec.config.ignition.version ${assets_dir}/99_openshift-machineconfig_99-master-ssh.yaml)
+    sed -i -e "s/IGNITION_VERSION/${IGNITION_VERSION}/g" assets/generated/*-igb-disable-offload.yaml
+    if [[ ${IGNITION_VERSION} =~ ^3\. ]]; then
+      sed -i -e "/filesystem: root/d" assets/generated/*-igb-disable-offload.yaml
+    fi
+  fi
+}
+
 function create_cluster() {
     local assets_dir
 
@@ -135,6 +150,7 @@ function create_cluster() {
       export NTP_SERVERS="$PROVISIONING_HOST_EXTERNAL_IP"
     fi
     custom_ntp ${assets_dir}/openshift
+    fix_igb_offload ${assets_dir}/openshift
 
     if [[ "${OVN_LOCAL_GATEWAY_MODE}" == "true" ]] && [[ "${NETWORK_TYPE}" == "OVNKubernetes" ]]; then
       local_gateway_mode ${assets_dir}/openshift
