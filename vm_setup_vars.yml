@@ -116,3 +116,8 @@ networks: "{{ provisioning_network + external_network + extra_networks if not lo
 
 libvirt_nic_model: "{{ lookup('env', 'LIBVIRT_NIC_MODEL') | default('virtio', true) }}"
 
+baremetal_vm_device_xml: |
+    <iommu model='intel'>                                                                                                           
+      <driver intremap='on' caching_mode='on'/>                   
+    </iommu>                                                                                                                        
+
